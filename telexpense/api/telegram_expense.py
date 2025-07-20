@@ -1,140 +1,144 @@
-# your_app/api/telegram.py
-
 import os
 import json
+import re
 import requests
 from io import BytesIO
 from PIL import Image
-import google.generativeai as genai
+
 import frappe
+import google.generativeai as genai
 
-# Inisialisasi Gemini sekali di module
-# API_KEY = frappe.conf.get("google_api_key") or os.getenv("GOOGLE_API_KEY")
-# if not API_KEY:
-#     frappe.throw("GOOGLE_API_KEY belum di-set di site_config.json atau environment.")
+# Constants
+MODEL_NAME = "gemini-1.5-flash"
+FILE_DOWNLOAD_URL = "https://api.telegram.org/file/bot{token}/{file_path}"
+SEND_MESSAGE_URL = "https://api.telegram.org/bot{token}/sendMessage"
+GET_FILE_URL = "https://api.telegram.org/bot{token}/getFile"
+JSON_BLOCK_REGEX = r'```json\n(.*)\n```'
 
-# genai.configure(api_key=API_KEY)
-# MODEL = genai.GenerativeModel("gemini-1.5-flash")
+
+def _init_gemini(api_key: str):
+    genai.configure(api_key=api_key)
+    return genai.GenerativeModel(MODEL_NAME)
 
 
 def _extract_json(raw_text: str) -> str:
-    """Ambil blok JSON dari markdown ```json ...``` atau kembalikan raw."""
-    import re
-    m = re.search(r'```json\n(.*)\n```', raw_text, re.DOTALL)
-    return m.group(1).strip() if m else raw_text.strip()
+    match = re.search(JSON_BLOCK_REGEX, raw_text, re.DOTALL)
+    return match.group(1).strip() if match else raw_text.strip()
+
+
+def _download_telegram_file(token: str, file_id: str) -> Image.Image:
+    # Get file path
+    resp = requests.get(GET_FILE_URL.format(token=token), params={"file_id": file_id})
+    resp.raise_for_status()
+    file_path = resp.json()["result"]["file_path"]
+
+    # Download image
+    download_url = FILE_DOWNLOAD_URL.format(token=token, file_path=file_path)
+    img_resp = requests.get(download_url)
+    img_resp.raise_for_status()
+    return Image.open(BytesIO(img_resp.content)), download_url
+
+
+def _log_expense(result: dict, chat_id: int, file_url: str) -> frappe.Document:
+    user = frappe.db.get_value("Telegram User", {"telegram_user_id": chat_id}, "user") or frappe.session.user
+    log = frappe.get_doc({
+        "doctype": "Telegram Expense Log",
+        "telegram_user": chat_id,
+        "description": result.get("description"),
+        "expense_category": result.get("expense_category"),
+        "amount": result.get("amount"),
+        "user": user
+    }).insert(ignore_permissions=True)
+
+    # Attach original image
+    frappe.get_doc({
+        "doctype": "File",
+        "file_name": os.path.basename(file_url),
+        "file_url": file_url,
+        "attached_to_doctype": "Telegram Expense Log",
+        "attached_to_name": log.name
+    }).insert(ignore_permissions=True)
+
+    return log
+
+
+def _compose_reply(result: dict) -> str:
+    # Format amount
+    amount = result.get("amount", 0)
+    formatted_amount = f"Rp{amount:,.0f}".replace(",", ".")
+
+    return (
+        "✅ Transaksi berhasil disimpan:\n"
+        f"Deskripsi: {result.get('description', '-')}\n"
+        f"Kategori: {result.get('expense_category', '-')}\n"
+        f"Jumlah: {formatted_amount}"
+    )
+
+
+def _send_telegram_message(token: str, chat_id: int, text: str):
+    requests.post(
+        SEND_MESSAGE_URL.format(token=token),
+        json={"chat_id": chat_id, "text": text}
+    )
 
 
 @frappe.whitelist(allow_guest=True)
 def telegram_webhook():
-    tele_setting = frappe.get_doc("Telegram Expense Setting","Telegram Expense Setting")
-    if tele_setting.ai_enabled == 1:
-        """Webhook endpoint untuk Telegram + Gemini receipt OCR."""
-        # 1) Terima payload
-        data = frappe.request.get_json() or {}
-        msg  = data.get("message", {})
+    """
+    Webhook endpoint for Telegram -> Gemini OCR -> Expense Logging
+    """
+    try:
+        setting = frappe.get_doc("Telegram Expense Setting", "Telegram Expense Setting")
+        if not setting.ai_enabled:
+            frappe.response["message"] = "AI processing disabled"
+            return
 
+        payload = frappe.request.get_json(force=True) or {}
+        msg = payload.get("message", {})
         chat_id = msg.get("chat", {}).get("id")
         if not chat_id:
             frappe.response["message"] = "no chat_id"
             return
 
-        # 2) Ambil Bot token terenkripsi
-        bots = frappe.get_all("Telegram Bot", pluck="name")
-        if not bots:
-            frappe.throw("Tidak ada Telegram Bot yang aktif")
-        bot = frappe.get_doc("Telegram Bot", bots[0])
+        # Get bot token
+        bot_names = frappe.get_all("Telegram Bot", filters={"enabled": 1}, pluck="name")
+        if not bot_names:
+            frappe.throw("No active Telegram Bot found")
+        bot = frappe.get_doc("Telegram Bot", bot_names[0])
         token = bot.get_password("api_token")
 
-        reply_text = None
-
-        # 3) Jika user kirim foto
+        # Handle photo
         if msg.get("photo"):
-            # ambil file_id foto terbesar
             photo = max(msg["photo"], key=lambda p: p.get("file_size", 0))
-            file_id = photo["file_id"]
+            img, file_url = _download_telegram_file(token, photo["file_id"])
 
-            # get file_path dari Telegram
-            r = requests.get(
-                f"https://api.telegram.org/bot{token}/getFile",
-                params={"file_id": file_id}
-            ).json()
-            file_path = r["result"]["file_path"]
-            file_url  = f"https://api.telegram.org/file/bot{token}/{file_path}"
+            # Prepare Gemini
+            ai_key = setting.get_password("api_key")
+            model = _init_gemini(ai_key)
 
-            # download dan load image
-            resp = requests.get(file_url)
-            resp.raise_for_status()
-            img = Image.open(BytesIO(resp.content))
-
-            # 4) Susun prompt untuk Gemini
-            expense_categories = frappe.get_all("Expense Category", pluck="name")
+            categories = frappe.get_all("Expense Category", pluck="name")
             prompt = (
-                "Dari struk ini, identifikasi jenis transaksi "
-                "(misalnya: BBM di Cimahi, Makan di Restauran Pak Unang, Tol Jagorawi, dll) sebagai 'description' "
-                "kemudian tambahkan 'expense_category' sesuai dengan yang disini  {0}".format(expense_categories) +
-                "dan total jumlah pembayaran sebagai 'amount'. Perhatikan angkanya terkadang bentuknya 800.000,00 atau 800,000.00. itu artinya tetap 800000\n"
-                "Sajikan hasilnya dalam format JSON berikut:\n"
-                '{"description": "string","expense_category": "string", "amount": float}\n'
-                "Output harus HANYA objek JSON tanpa teks tambahan."
+                f"Dari struk ini, identifikasi jenis transaksi sebagai 'description', "
+                f"pilih kategori dari {categories} sebagai 'expense_category', dan "
+                "total pembayaran sebagai 'amount'. Format JSON:"
+                "{'description':'string','expense_category':'string','amount':float}" 
             )
+            gem_resp = model.generate_content([prompt, img])
 
-            # 5) Kirim ke Gemini
-            API_KEY = tele_setting.get_password("api_key")
-            genai.configure(api_key=API_KEY)
-            MODEL = genai.GenerativeModel("gemini-1.5-flash")
-
-            gem_resp = MODEL.generate_content([prompt, img])
-
-            # 6) Ekstrak JSON dan parse
             js = _extract_json(gem_resp.text)
-            try:
-                result = json.loads(js)
-                
-                expense_log = frappe.get_doc({
-                    "doctype": "Telegram Expense Log",
-                    "telegram_user": chat_id,
-                    "description": result.get("description"),
-                    "expense_category": result.get("expense_category"),
-                    "amount": result.get("amount"),
-                    "user": frappe.db.get_value("Telegram User", {"telegram_user_id": chat_id}, "user") or frappe.session.user
-                })
+            result = json.loads(js)
 
-                expense_log.insert(ignore_permissions=True)
-
-                # setelah kamu insert Telegram Expense Log (expense_log)
-                # dan sudah punya `file_url`
-                file_doc = frappe.get_doc({
-                    "doctype": "File",
-                    "file_name": file_url.split("/")[-1],
-                    "file_url": file_url,
-                    "attached_to_doctype": "Telegram Expense Log",
-                    "attached_to_name": expense_log.name
-                }).insert(ignore_permissions=True)
-
-
-                # format ulang sebagai string untuk dikirim
-                # reply_text = json.dumps(result, ensure_ascii=False)
-                reply_text = (
-                    f"Transaksi berhasil disimpan\n"
-                    f"Deskripsi: *{result.get('description')}*\n"
-                    f"Kategori: *{result.get('expense_category')}*</b>\n"
-                    f"Jumlah: *{result.get('amount')}*</b>"
-                )
-            except ValueError:
-                # kalau parsing gagal, kirim mentah saja
-                reply_text = f"Error parsing JSON:\n{js}"
-
+            # Log expense and attach file
+            _log_expense(result, chat_id, file_url)
+            reply_text = _compose_reply(result)
         else:
-            # 7) Kalau text biasa → echo
+            # Echo text
             text = msg.get("text", "")
             reply_text = f"Kamu bilang: {text}"
 
-        # 8) Kirim balasan ke Telegram
-        send_url = f"https://api.telegram.org/bot{token}/sendMessage"
-        requests.post(send_url, json={
-            "chat_id": chat_id,
-            "text": reply_text
-        })
-
-        # 9) Respon 200 OK
+        _send_telegram_message(token, chat_id, reply_text)
         frappe.response["message"] = "ok"
+
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "Telegram Webhook Error")
+        frappe.response["message"] = str(e)
