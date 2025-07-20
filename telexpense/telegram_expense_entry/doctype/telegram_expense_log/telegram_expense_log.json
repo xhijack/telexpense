@@ -5,12 +5,15 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "description",
+  "amount",
+  "expense_category",
+  "amended_from",
+  "column_break_jfwg",
+  "user",
   "telegram_user",
-  "status",
-  "draft_data",
-  "je_name",
-  "error_message",
-  "attachment"
+  "employee",
+  "je_name"
  ],
  "fields": [
   {
@@ -19,42 +22,65 @@
    "label": "Telegram User"
   },
   {
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "label": "Status",
-   "options": "draft\nposted"
-  },
-  {
-   "fieldname": "draft_data",
-   "fieldtype": "Text",
-   "label": "Draft Data"
-  },
-  {
    "fieldname": "je_name",
    "fieldtype": "Link",
    "label": "JE Name",
    "options": "Journal Entry"
   },
   {
-   "fieldname": "error_message",
-   "fieldtype": "Data",
-   "label": "Error Message"
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Telegram Expense Log",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
   },
   {
-   "fieldname": "attachment",
-   "fieldtype": "Attach",
-   "label": "Attachment"
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Description"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Amount"
+  },
+  {
+   "fieldname": "expense_category",
+   "fieldtype": "Link",
+   "label": "Expense Category",
+   "options": "Expense Category"
+  },
+  {
+   "fieldname": "column_break_jfwg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "label": "Employee",
+   "options": "Employee"
   }
  ],
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [],
- "modified": "2025-07-20 18:19:14.838072",
+ "modified": "2025-07-20 18:33:20.991909",
  "modified_by": "Administrator",
  "module": "Telegram Expense Entry",
  "name": "Telegram Expense Log",
  "owner": "Administrator",
  "permissions": [
   {
+   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -63,7 +89,9 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "select": 1,
    "share": 1,
+   "submit": 1,
    "write": 1
   }
  ],

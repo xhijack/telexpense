@@ -93,7 +93,10 @@ def telegram_webhook():
                 expense_log = frappe.get_doc({
                     "doctype": "Telegram Expense Log",
                     "telegram_user": chat_id,
-                    "draft_data": json.dumps(result, ensure_ascii=False)
+                    "description": result.get("description"),
+                    "expense_category": result.get("expense_category"),
+                    "amount": result.get("amount"),
+                    "user": frappe.db.get_value("Telegram User", {"telegram_user_id": chat_id}, "user") or frappe.session.user
                 })
 
                 expense_log.insert(ignore_permissions=True)
@@ -108,18 +111,14 @@ def telegram_webhook():
                     "attached_to_name": expense_log.name
                 }).insert(ignore_permissions=True)
 
-                # lalu simpan ref ke field attachment
-                expense_log.attachment = file_doc.name
-                expense_log.save()
-
 
                 # format ulang sebagai string untuk dikirim
                 # reply_text = json.dumps(result, ensure_ascii=False)
                 reply_text = (
-                    f"Transaksi berhasil disimpan:\n"
-                    f"Deskripsi: {result.get('description')}\n"
-                    f"Kategori: {result.get('expense_category')}\n"
-                    f"Jumlah: {result.get('amount')}"
+                    f"Transaksi berhasil disimpan\n"
+                    f"Deskripsi: <b>{result.get('description')}</b>\n"
+                    f"Kategori: <b>{result.get('expense_category')}</b>\n"
+                    f"Jumlah: <b>{result.get('amount')}</b>"
                 )
             except ValueError:
                 # kalau parsing gagal, kirim mentah saja
