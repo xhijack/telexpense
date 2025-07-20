@@ -27,7 +27,7 @@ def _extract_json(raw_text: str) -> str:
 @frappe.whitelist(allow_guest=True)
 def telegram_webhook():
     tele_setting = frappe.get_doc("Telegram Expense Setting","Telegram Expense Setting")
-    if tele_setting.ai_enabled == "1":
+    if tele_setting.ai_enabled == 1:
         """Webhook endpoint untuk Telegram + Gemini receipt OCR."""
         # 1) Terima payload
         data = frappe.request.get_json() or {}
