@@ -68,7 +68,7 @@ def telegram_webhook():
         prompt = (
             "Dari struk ini, identifikasi jenis transaksi "
             "(misalnya: BBM, Tol, Makanan, Belanja, Parkir, dll.) sebagai 'description' "
-            "dan total jumlah pembayaran sebagai 'amount'. "
+            "dan total jumlah pembayaran sebagai 'amount'. Perhatikan angkanya terkadang bentuknya 800.000,00 atau 800,000.00. itu artinya tetap 800000\n"
             "Sajikan hasilnya dalam format JSON berikut:\n"
             '{"description": "string", "amount": float}\n'
             "Output harus HANYA objek JSON tanpa teks tambahan."
