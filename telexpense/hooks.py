@@ -21,6 +21,15 @@ app_license = "mit"
 # 	}
 # ]
 
+# override_whitelisted_methods = {
+#     "frappe_telegram.handler": "telexpense.api.telegram_handler."
+# }
+
+telegram_bot_handler = [
+    "telexpense.api.telegram_handler.register_commands"
+]
+
+
 # Includes in <head>
 # ------------------
 
