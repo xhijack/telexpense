@@ -118,7 +118,7 @@ def telegram_webhook():
                     f"Transaksi berhasil disimpan\n"
                     f"Deskripsi: {result.get('description')}\n"
                     f"Kategori: {result.get('expense_category')}\n"
-                    f"Jumlah: {result.get('amount')}"
+                    f"Jumlah: {frappe.utils.fmt_money(result.get('amount'), currency='IDR')}"
                 )
             except ValueError:
                 # kalau parsing gagal, kirim mentah saja
