@@ -93,10 +93,25 @@ def telegram_webhook():
                 expense_log = frappe.get_doc({
                     "doctype": "Telegram Expense Log",
                     "telegram_user": chat_id,
-                    "draft_data": json.dumps(result, ensure_ascii=False),
+                    "draft_data": json.dumps(result, ensure_ascii=False)
                 })
 
                 expense_log.insert(ignore_permissions=True)
+
+                # setelah kamu insert Telegram Expense Log (expense_log)
+                # dan sudah punya `file_url`
+                file_doc = frappe.get_doc({
+                    "doctype": "File",
+                    "file_name": file_url.split("/")[-1],
+                    "file_url": file_url,
+                    "attached_to_doctype": "Telegram Expense Log",
+                    "attached_to_name": expense_log.name
+                }).insert(ignore_permissions=True)
+
+                # lalu simpan ref ke field attachment
+                expense_log.attachment = file_doc.name
+                expense_log.save()
+
 
                 # format ulang sebagai string untuk dikirim
                 # reply_text = json.dumps(result, ensure_ascii=False)

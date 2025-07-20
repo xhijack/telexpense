@@ -9,7 +9,8 @@
   "status",
   "draft_data",
   "je_name",
-  "error_message"
+  "error_message",
+  "attachment"
  ],
  "fields": [
   {
@@ -38,11 +39,16 @@
    "fieldname": "error_message",
    "fieldtype": "Data",
    "label": "Error Message"
+  },
+  {
+   "fieldname": "attachment",
+   "fieldtype": "Attach",
+   "label": "Attachment"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-18 23:45:23.481277",
+ "modified": "2025-07-20 18:19:14.838072",
  "modified_by": "Administrator",
  "module": "Telegram Expense Entry",
  "name": "Telegram Expense Log",
