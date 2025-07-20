@@ -90,7 +90,8 @@ def telegram_webhook():
             try:
                 result = json.loads(js)
                 
-                expense_log = frappe.get_new("Telegram Expense Log", {
+                expense_log = frappe.new_doc({
+                    "doctype": "Telegram Expense Log",
                     "telegram_user": chat_id,
                     "draft_data": json.dumps(result, ensure_ascii=False),
                 })
