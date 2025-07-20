@@ -70,7 +70,7 @@ def telegram_webhook():
             expense_categories = frappe.get_all("Expense Category", pluck="name")
             prompt = (
                 "Dari struk ini, identifikasi jenis transaksi "
-                "(misalnya: BBM, Tol, Makanan, Belanja, Parkir, dll.) sebagai 'description' "
+                "(misalnya: BBM di Cimahi, Makan di Restauran Pak Unang, Tol Jagorawi, dll) sebagai 'description' "
                 "kemudian tambahkan 'expense_category' sesuai dengan yang disini  {0}".format(expense_categories) +
                 "dan total jumlah pembayaran sebagai 'amount'. Perhatikan angkanya terkadang bentuknya 800.000,00 atau 800,000.00. itu artinya tetap 800000\n"
                 "Sajikan hasilnya dalam format JSON berikut:\n"
@@ -89,8 +89,22 @@ def telegram_webhook():
             js = _extract_json(gem_resp.text)
             try:
                 result = json.loads(js)
+                
+                expense_log = frappe.get_new("Telegram Expense Log", {
+                    "telegram_user": chat_id,
+                    "draft_data": json.dumps(result, ensure_ascii=False),
+                })
+
+                expense_log.insert(ignore_permissions=True)
+
                 # format ulang sebagai string untuk dikirim
-                reply_text = json.dumps(result, ensure_ascii=False)
+                # reply_text = json.dumps(result, ensure_ascii=False)
+                reply_text = (
+                    f"Transaksi berhasil disimpan:\n"
+                    f"Deskripsi: {result.get('description')}\n"
+                    f"Kategori: {result.get('expense_category')}\n"
+                    f"Jumlah: {result.get('amount')}"
+                )
             except ValueError:
                 # kalau parsing gagal, kirim mentah saja
                 reply_text = f"Error parsing JSON:\n{js}"
