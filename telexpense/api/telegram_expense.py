@@ -116,9 +116,9 @@ def telegram_webhook():
                 # reply_text = json.dumps(result, ensure_ascii=False)
                 reply_text = (
                     f"Transaksi berhasil disimpan\n"
-                    f"Deskripsi: *{result.get('description')}*\n"
-                    f"Kategori: *{result.get('expense_category')}*</b>\n"
-                    f"Jumlah: *{result.get('amount')}*</b>"
+                    f"Deskripsi: {result.get('description')}\n"
+                    f"Kategori: {result.get('expense_category')}\n"
+                    f"Jumlah: {result.get('amount')}"
                 )
             except ValueError:
                 # kalau parsing gagal, kirim mentah saja
