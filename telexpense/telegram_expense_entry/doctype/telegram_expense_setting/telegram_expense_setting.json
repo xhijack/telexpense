@@ -6,7 +6,12 @@
  "engine": "InnoDB",
  "field_order": [
   "default_expense_account",
-  "default_bank_account"
+  "default_bank_account",
+  "ai_tab",
+  "ai_enabled",
+  "provider",
+  "model",
+  "api_key"
  ],
  "fields": [
   {
@@ -20,12 +25,44 @@
    "fieldtype": "Link",
    "label": "Default Bank Account",
    "options": "Account"
+  },
+  {
+   "fieldname": "ai_tab",
+   "fieldtype": "Tab Break",
+   "label": "AI"
+  },
+  {
+   "depends_on": "eval: doc.ai_enabled == 1;",
+   "fieldname": "provider",
+   "fieldtype": "Select",
+   "label": "Provider",
+   "options": "Gemini"
+  },
+  {
+   "depends_on": "eval: doc.ai_enabled == 1;",
+   "fieldname": "model",
+   "fieldtype": "Select",
+   "label": "Model",
+   "options": "gemini-1.5-flash"
+  },
+  {
+   "depends_on": "eval: doc.ai_enabled == 1;",
+   "fieldname": "api_key",
+   "fieldtype": "Password",
+   "label": "Api Key",
+   "mandatory_depends_on": "eval: doc.ai_enabled == 1;"
+  },
+  {
+   "default": "0",
+   "fieldname": "ai_enabled",
+   "fieldtype": "Check",
+   "label": "AI Enabled"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-07-18 23:51:58.662448",
+ "modified": "2025-07-20 17:20:50.982390",
  "modified_by": "Administrator",
  "module": "Telegram Expense Entry",
  "name": "Telegram Expense Setting",
