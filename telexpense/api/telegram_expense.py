@@ -73,7 +73,7 @@ def telegram_webhook():
                 "(misalnya: BBM di Cimahi, Makan di Restauran Pak Unang, Tol Jagorawi, dll) sebagai 'description' "
                 "kemudian tambahkan 'expense_category' sesuai dengan yang disini  {0}".format(expense_categories) +
                 "dan total jumlah pembayaran sebagai 'amount'. Perhatikan angkanya terkadang bentuknya 800.000,00 atau 800,000.00. itu artinya tetap 800000\n"
-                "Jika ada tanggal, gunakan tanggal tersebut sebagai 'posting_date'. Jika tidak ada, gunakan hari ini.\n"
+                "Jika ada tanggal, gunakan tanggal tersebut sebagai 'posting_date'. Jika tidak ada, gunakan hari ini. formatnya seperti ini '2025-07-15' \n"
                 "Sajikan hasilnya dalam format JSON berikut:\n"
                 '{"description": "string","expense_category": "string", "amount": float}\n'
                 "Output harus HANYA objek JSON tanpa teks tambahan."
