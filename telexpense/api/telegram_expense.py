@@ -73,6 +73,7 @@ def telegram_webhook():
                 "(misalnya: BBM di Cimahi, Makan di Restauran Pak Unang, Tol Jagorawi, dll) sebagai 'description' "
                 "kemudian tambahkan 'expense_category' sesuai dengan yang disini  {0}".format(expense_categories) +
                 "dan total jumlah pembayaran sebagai 'amount'. Perhatikan angkanya terkadang bentuknya 800.000,00 atau 800,000.00. itu artinya tetap 800000\n"
+                "Jika ada tanggal, gunakan tanggal tersebut sebagai 'posting_date'. Jika tidak ada, gunakan hari ini.\n"
                 "Sajikan hasilnya dalam format JSON berikut:\n"
                 '{"description": "string","expense_category": "string", "amount": float}\n'
                 "Output harus HANYA objek JSON tanpa teks tambahan."
@@ -96,6 +97,7 @@ def telegram_webhook():
                     "description": result.get("description"),
                     "expense_category": result.get("expense_category"),
                     "amount": result.get("amount"),
+                    "posting_date": result.get("posting_date"),
                     "user": frappe.db.get_value("Telegram User", {"telegram_user_id": chat_id}, "user") or frappe.session.user
                 })
 

@@ -5,9 +5,10 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "description",
-  "amount",
   "expense_category",
+  "posting_date",
+  "amount",
+  "description",
   "amended_from",
   "column_break_jfwg",
   "user",
@@ -45,13 +46,17 @@
   {
    "fieldname": "amount",
    "fieldtype": "Currency",
-   "label": "Amount"
+   "in_list_view": 1,
+   "label": "Amount",
+   "reqd": 1
   },
   {
    "fieldname": "expense_category",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Expense Category",
-   "options": "Expense Category"
+   "options": "Expense Category",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_jfwg",
@@ -60,20 +65,29 @@
   {
    "fieldname": "user",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "User",
-   "options": "User"
+   "options": "User",
+   "reqd": 1
   },
   {
    "fieldname": "employee",
    "fieldtype": "Link",
    "label": "Employee",
    "options": "Employee"
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Posting Date",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-07-20 18:33:20.991909",
+ "modified": "2025-07-21 08:01:44.790743",
  "modified_by": "Administrator",
  "module": "Telegram Expense Entry",
  "name": "Telegram Expense Log",
