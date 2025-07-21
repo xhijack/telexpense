@@ -97,7 +97,7 @@ def telegram_webhook():
                     "description": result.get("description"),
                     "expense_category": result.get("expense_category"),
                     "amount": result.get("amount"),
-                    "posting_date": result.get("posting_date"),
+                    "posting_date": result.get("posting_date") or frappe.utils.nowdate(),
                     "user": frappe.db.get_value("Telegram User", {"telegram_user_id": chat_id}, "user") or frappe.session.user
                 })
 
