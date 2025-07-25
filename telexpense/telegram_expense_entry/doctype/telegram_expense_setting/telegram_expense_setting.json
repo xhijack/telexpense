@@ -11,7 +11,10 @@
   "ai_enabled",
   "provider",
   "model",
-  "api_key"
+  "api_key",
+  "income_tab",
+  "income_enabled",
+  "expense_enabled"
  ],
  "fields": [
   {
@@ -57,12 +60,29 @@
    "fieldname": "ai_enabled",
    "fieldtype": "Check",
    "label": "AI Enabled"
+  },
+  {
+   "fieldname": "income_tab",
+   "fieldtype": "Tab Break",
+   "label": "Income"
+  },
+  {
+   "default": "0",
+   "fieldname": "income_enabled",
+   "fieldtype": "Check",
+   "label": "Income Enabled"
+  },
+  {
+   "default": "0",
+   "fieldname": "expense_enabled",
+   "fieldtype": "Check",
+   "label": "Expense Enabled"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-07-20 17:20:50.982390",
+ "modified": "2025-07-25 22:09:20.000266",
  "modified_by": "Administrator",
  "module": "Telegram Expense Entry",
  "name": "Telegram Expense Setting",
