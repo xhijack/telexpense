@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "format:{posting_date}-{customer}",
  "creation": "2025-07-25 21:45:14.173933",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -15,7 +16,8 @@
   "user",
   "telegram_user",
   "invoice",
-  "customer"
+  "customer",
+  "posting_date"
  ],
  "fields": [
   {
@@ -88,16 +90,22 @@
    "fieldname": "image",
    "fieldtype": "Attach Image",
    "label": "Image"
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-07-25 22:07:14.278921",
+ "modified": "2025-07-26 16:29:51.224560",
  "modified_by": "Administrator",
  "module": "Telegram Expense Entry",
  "name": "Telegram Income Log",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {

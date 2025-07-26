@@ -1,6 +1,7 @@
 import requests
 import frappe
 from frappe.utils import fmt_money
+from frappe.utils import nowdate
 
 
 @frappe.whitelist(allow_guest=True)
@@ -97,10 +98,11 @@ def incoming_chat(update, context):
 
                 doc = frappe.get_doc({
                     "doctype": "Telegram Income Log",
-                    "telegram_user_id": chat_id,
+                    "telegram_user": chat_id,
                     "user": user_id,
                     "customer": customer.customer_name,
                     "invoice": matched_invoice,
+                    "posting_date": nowdate(),
                     "image": file_url,
                 })
                 doc.insert(ignore_permissions=True)
