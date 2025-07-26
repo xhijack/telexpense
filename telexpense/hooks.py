@@ -27,9 +27,9 @@ app_license = "mit"
 
 
 
-telegram_bot_handler = [
-    "telexpense.api.telegram_handler.telegram_webhook"
-]
+# telegram_bot_handler = [
+#     "telexpense.api.telegram_handler.telegram_webhook"
+# ]
 
 telegram_update_pre_processors = [
     "telexpense.api.telegram_handler.incoming_chat"
