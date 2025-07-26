@@ -45,6 +45,7 @@
    "options": "Sales Invoice"
   },
   {
+   "fetch_from": "invoice.grand_total",
    "fieldname": "amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
@@ -74,11 +75,11 @@
   },
   {
    "fieldname": "invoice",
-   "fieldtype": "Dynamic Link",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Invoice",
-   "options": "income_category"
+   "options": "Sales Invoice"
   },
   {
    "fieldname": "customer",
@@ -115,7 +116,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-07-26 16:59:53.850576",
+ "modified": "2025-07-26 17:09:23.436560",
  "modified_by": "Administrator",
  "module": "Telegram Expense Entry",
  "name": "Telegram Income Log",
