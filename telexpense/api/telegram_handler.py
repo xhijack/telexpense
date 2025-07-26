@@ -35,6 +35,7 @@ def incoming_chat(update, context):
 
     # ========== 1. Perintah /cek_tagihan ==========
     customer = get_customer_by_telegram_user_id(chat_id)
+    user_id = frappe.db.get_value("Telegram User", {"telegram_user_id": chat_id}, "user")
     if msg.text == "/cek_tagihan":
 
         if not customer:
@@ -96,7 +97,8 @@ def incoming_chat(update, context):
 
                 doc = frappe.get_doc({
                     "doctype": "Telegram Income Log",
-                    "user": chat_id,
+                    "telegram_user_id": chat_id,
+                    "user": user_id,
                     "customer": customer.customer_name,
                     "invoice": matched_invoice,
                     "image": file_url,
