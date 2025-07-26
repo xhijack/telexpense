@@ -25,9 +25,26 @@ app_license = "mit"
 #     "frappe_telegram.handler": "telexpense.api.telegram_handler."
 # }
 
+
+
 telegram_bot_handler = [
-    "telexpense.api.telegram_handler.register_commands"
+    "telexpense.api.telegram_handler.telegram_webhook"
 ]
+
+telegram_update_pre_processors = [
+    "telexpense.api.telegram_handler.incoming_chat"
+]
+
+# telegram_update_post_processors = [
+#     "telexpense.api.telegram_handler.log_reply_history"
+# ]
+
+
+
+telegram_commands = {
+  "cek_tagihan": "my_app.telegram_callbacks.check_tagihan_handler"
+}
+
 
 
 # Includes in <head>
