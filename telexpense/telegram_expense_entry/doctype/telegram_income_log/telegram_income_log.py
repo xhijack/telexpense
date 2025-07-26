@@ -40,7 +40,10 @@ class TelegramIncomeLog(Document):
 		})
 		payment_entry.insert()
 		payment_entry.submit()
+		return payment_entry.name
 
 	def on_submit(self):
-		self.create_payment_entry()
+		pe_name = self.create_payment_entry()
+		frappe.db.set_value('Telegram Income Log', self.name, 'payment_entry',pe_name)
+		frappe.db.commit()
 
