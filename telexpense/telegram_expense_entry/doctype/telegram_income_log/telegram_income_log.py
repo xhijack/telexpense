@@ -35,7 +35,8 @@ class TelegramIncomeLog(Document):
 				"reference_name": si.name,
 				"total_amount": si.grand_total,
 				"outstanding_amount": si.outstanding_amount,
-				"allocated_amount": si.outstanding_amount
+				"allocated_amount": si.outstanding_amount,
+				"payment_term": "Normal"
 			}]
 		})
 		payment_entry.insert()
