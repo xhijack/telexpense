@@ -32,7 +32,7 @@ def incoming_chat(update, context):
     bot = frappe.get_doc("Telegram Bot", bot_name)
     token = bot.get_password("api_token")
 
-    reply_text = ""
+    reply_text = None
 
     # ========== 1. Perintah /cek_tagihan ==========
     customer = get_customer_by_telegram_user_id(chat_id)
@@ -65,6 +65,9 @@ def incoming_chat(update, context):
         reply_text = "Silakan kirim foto bukti transfer."
 
     # ========== 3. Gambar masuk ==========
+    elif msg.text == "/start":
+        pass
+
     elif msg.text == None:
         state = frappe.cache().get(f"tg_state_{chat_id}")
         if state != b"waiting_image":
@@ -126,10 +129,11 @@ def incoming_chat(update, context):
         reply_text = "Perintah tidak dikenali. Gunakan Sesuai yang ada pada menu"
 
     # ========== 5. Kirim balasan ke Telegram ==========
-    requests.post(
-        f"https://api.telegram.org/bot{token}/sendMessage",
-        json={"chat_id": chat_id, "text": reply_text, "parse_mode": "HTML"}
-    )
+    if reply_text:
+        requests.post(
+            f"https://api.telegram.org/bot{token}/sendMessage",
+            json={"chat_id": chat_id, "text": reply_text, "parse_mode": "HTML"}
+        )
     frappe.response["message"] = "ok"
 
 def get_customer_by_telegram_user_id(telegram_user_id: str):
