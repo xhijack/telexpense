@@ -40,7 +40,7 @@ def incoming_chat(update, context):
     if msg.text == "/cek_tagihan":
 
         if not customer:
-            reply_text = "Data Anda belum terdaftar. Mohon hubungi admin RT."
+            reply_text = "Data Anda belum terdaftar. Mohon hubungi Admin"
         else:
             invoices = frappe.get_all("Sales Invoice", filters={
                 "customer": customer.customer_name,
@@ -57,6 +57,8 @@ def incoming_chat(update, context):
                         f"📄 *{inv.name}*\n"
                         f"Tgl: {inv.posting_date}, Jatuh Tempo: {inv.due_date}\n"
                         f"Jumlah: {fmt_money(inv.outstanding_amount, currency='IDR')}\n\n"
+                        f"Silakan Transfer ke BCA 6820576771 a/n Muhamad Yoga D.\n\n"
+
                     )
 
     # ========== 2. Perintah /bukti_transfer ==========
