@@ -125,8 +125,6 @@ def incoming_chat(update, context):
                 )
 
     # ========== 4. Pesan selain perintah ==========
-    else:
-        reply_text = "Perintah tidak dikenali. Gunakan Sesuai yang ada pada menu"
 
     # ========== 5. Kirim balasan ke Telegram ==========
     if reply_text:
