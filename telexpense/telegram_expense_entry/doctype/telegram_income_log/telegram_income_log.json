@@ -116,7 +116,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-07-26 17:09:23.436560",
+ "modified": "2025-08-04 20:59:02.515755",
  "modified_by": "Administrator",
  "module": "Telegram Expense Entry",
  "name": "Telegram Income Log",
@@ -124,6 +124,8 @@
  "owner": "Administrator",
  "permissions": [
   {
+   "amend": 1,
+   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -132,6 +134,7 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "select": 1,
    "share": 1,
    "submit": 1,
    "write": 1
